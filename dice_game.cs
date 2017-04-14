@@ -183,13 +183,40 @@ namespace dice_game.cs
   public class Turn
   {
     private int _score = 0;
-
+    private Dictionary<int, int> _kind = new Dictionary<int, int>();
     public int takeTurn()
     {
+      List<int> results;
       Roll r = new Roll();
-      r.doRoll(5);
+      results = r.doRoll(5);
       r.printRoll();
       return _score;
+    }
+
+    private void findKind(List<int> r)
+    {
+      for(int i = 0; i <= r.Count(); i++)
+      {
+        int v = r.ElementAt(i);
+        if (_kind.ContainsKey(v))
+        {
+          _kind[v] = _kind[v]++;
+        }
+        else
+        {
+          _kind.Add(v, 1);
+        }
+      }
+    }
+
+    private int highestValue()
+    {
+      int h = 0;
+      foreach (KeyValuePair<int, int> entry in _kind)
+      {
+        // do something with entry.Value or entry.Key
+      }
+      return h;
     }
   }
 
