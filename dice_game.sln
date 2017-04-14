@@ -1,0 +1,52 @@
+﻿using System;
+using System.Linq;
+
+
+
+public class Game
+{
+    public static void Main()
+    {
+        Console.WriteLine("Game.main");
+    }
+
+	public Game()
+    { 
+
+	}
+}
+
+public class Player
+{
+    public Player()
+    {
+
+
+
+    }
+}
+
+public class Die
+{
+    private int value;
+
+    public Die()
+    {
+        value = 0;
+    }
+    public int roll()
+    {
+        Random rnd = new Random();
+        return rnd.Next(1, 6);
+    }
+}
+
+public class Turn
+{
+    public Turn()
+    {
+
+
+
+    }
+}
