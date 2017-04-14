@@ -160,9 +160,9 @@ namespace dice_game.cs
     public void takeTurn()
     {
       Console.WriteLine("Player {0}: taking turn", _playerNumber);
-      _score += 10;
+
       Turn t = new Turn();
-      t.takeTurn();
+      _score += t.takeTurn();
     }
     public bool isWinner()
     {
@@ -184,23 +184,45 @@ namespace dice_game.cs
   {
     private int _score = 0;
     private Dictionary<int, int> _kind = new Dictionary<int, int>();
+
     public int takeTurn()
     {
       List<int> results;
       Roll r = new Roll();
-      results = r.doRoll(5);
+      results = r.doRoll(4);
       r.printRoll();
+      this.findKind(results);
+      int hc = highestCount();
+      if(hc == 2)
+      {
+        results = r.doRoll(2);
+        r.printRoll();
+        this.findKind(results);
+        hc = highestCount();
+      }
+      if(hc == 3)
+      {
+        _score = 3;
+      }
+      if(hc == 4)
+      {
+        _score = 6;
+      }
+      if(hc == 5)
+      {
+        _score = 12;
+      }
       return _score;
     }
 
     private void findKind(List<int> r)
     {
-      for(int i = 0; i <= r.Count(); i++)
+      for(int i = 0; i < r.Count(); i++)
       {
         int v = r.ElementAt(i);
         if (_kind.ContainsKey(v))
         {
-          _kind[v] = _kind[v]++;
+          _kind[v]++;
         }
         else
         {
@@ -209,12 +231,15 @@ namespace dice_game.cs
       }
     }
 
-    private int highestValue()
+    private int highestCount()
     {
       int h = 0;
       foreach (KeyValuePair<int, int> entry in _kind)
       {
-        // do something with entry.Value or entry.Key
+        if(h < entry.Value)
+        {
+          h = entry.Value;
+        }
       }
       return h;
     }
