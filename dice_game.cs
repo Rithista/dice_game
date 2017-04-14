@@ -93,6 +93,8 @@ namespace dice_game.cs
       {
         for (int i = 0; i < playerTotal; i++)
         {
+          Console.Clear();
+          PrintStart();
           Player p = _players.ElementAt(i);
           p.takeTurn();
           p.printScore();
@@ -101,40 +103,11 @@ namespace dice_game.cs
           {
             break;
           }
+         // Console.WriteLine("Now its player {0}'s turn!", _players[i + 1]);
+          Console.WriteLine("Press enter to take turn");
+          Console.ReadLine();
         }
-
-
-
-
-
-
-
-
-
-        /*Turn.takeTurn();
-        int[] results;
-        Roll r = new Roll();
-        results = r.roll5();
-
-
-
-        Console.WriteLine("Turn number is {0}", Turn.getTurnNumber());
-        string turnHistory = String.Join("|\n|", Turn.turnTotal);
-        turnHistory = string.Format("|{0}|", turnHistory);
-        Console.WriteLine(turnHistory);
-
-        //Console.WriteLine(Player.currentPlayer());
-        //Console.WriteLine("GOT TO HERE");
-
-        string rollOutcome = string.Join(", ", results);
-        Console.WriteLine("#################ROLLING################");
-        rollOutcome = string.Format("\t    | {0} |", rollOutcome);
-        Console.WriteLine("{0}", rollOutcome);
-        Console.WriteLine("#################ROLLING################");
-        Console.ReadLine();
-        */
       }
-      // Console.WriteLine("Player {0] is the winner and has reached 50 points!", topPlayerNumber());
     }
   }
 
@@ -183,6 +156,7 @@ namespace dice_game.cs
   public class Turn
   {
     private int _score = 0;
+    private static int diceFace;
     private Dictionary<int, int> _kind = new Dictionary<int, int>();
 
     public int takeTurn()
@@ -195,28 +169,49 @@ namespace dice_game.cs
       int hc = highestCount();
       if(hc == 2)
       {
+        Console.WriteLine("\nYou found 2 {0}'s, press enter to re-roll 3 dice...", diceFace);
+        Console.ReadLine();
         results = r.doRoll(2);
         r.printRoll();
         this.findKind(results);
         hc = highestCount();
       }
+
       if(hc == 3)
       {
+        
         _score = 3;
+        this._kind.Clear();
+        Console.WriteLine("\nYou found 3 {0}'s and scored {1} points!", diceFace, _score);
       }
       if(hc == 4)
       {
+        
         _score = 6;
+        this._kind.Clear();
+
+        Console.WriteLine("\nYou found 4 {0}'s and scored {1} points!", diceFace, _score);
       }
       if(hc == 5)
       {
         _score = 12;
+        this._kind.Clear();
+
+        Console.WriteLine("\nYou found 5 {0}'s and scored {1} points!", diceFace, _score);
+      }
+      if(hc == 1) {
+
+
+        this._kind.Clear();
+        Console.WriteLine("\nYou found no pairs and score 0 points this turn.");
       }
       return _score;
     }
 
     private void findKind(List<int> r)
     {
+
+
       for(int i = 0; i < r.Count(); i++)
       {
         int v = r.ElementAt(i);
@@ -228,6 +223,7 @@ namespace dice_game.cs
         {
           _kind.Add(v, 1);
         }
+        diceFace = _kind.Keys.Max();
       }
     }
 
@@ -259,7 +255,7 @@ namespace dice_game.cs
     {
       string rollOutcome = string.Join(", ", _results);
       rollOutcome = string.Format("\t    | {0} |", rollOutcome);
-      Console.WriteLine(rollOutcome);
+      Console.WriteLine("\n{0}", rollOutcome);
     }
 
     public List<int> doRoll(int number)
