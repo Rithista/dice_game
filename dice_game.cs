@@ -200,7 +200,7 @@ namespace dice_game.cs
     private static int diceFace;
     private Dictionary<int, int> _kind = new Dictionary<int, int>();
     private string _historyRoll;
-    private string _history;
+   // private string _history;
 
 
 
@@ -225,7 +225,7 @@ namespace dice_game.cs
       results = r.doRoll(4);
       r.printRoll();
       _historyRoll = string.Join(", ", results);
-      _history = string.Format("{0}\nPlayer {1}, Rolled {2} on turn {3}.", _history, Player.getPlayer(), _historyRoll, Player.getTurn());
+     // _history = string.Format("{0}\nPlayer {1}, Rolled {2} on turn {3}.", _history, Player.getPlayer(), _historyRoll, Player.getTurn());
       this.findKind(results);
 
 
@@ -275,12 +275,9 @@ namespace dice_game.cs
       return _score;
     }
     //##HISTORY BUILDER##
-    public void historyBuilder()
+    public void printHistory()
     {
-      string history = string.Join(", ", _historyRoll);
-      Console.WriteLine(history);
-
-
+      Console.WriteLine(_history);
     }
 
     private void findKind(List<int> r)
