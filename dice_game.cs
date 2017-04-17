@@ -106,13 +106,15 @@ namespace dice_game.cs
           isGameWon = p.isWinner();
           if (isGameWon)
           {
+            //Console.Write(p.getHistory());
+            Game.printHistory();
             break;
           }
           // Console.WriteLine("Now its player {0}'s turn!", _players[i + 1]);
           if(Opponent == true)
           {
             Console.WriteLine("Press enter to take turn");
-            Console.ReadLine();
+            //Console.ReadLine();
           }
         }
       }
@@ -121,6 +123,13 @@ namespace dice_game.cs
     {
       return Convert.ToInt32(Opponent);
     }
+    static void printHistory()
+    {
+      for (int i = 0; i < playerTotal; i++)
+      {
+        _players.ElementAt(i).printHistory();
+      }
+     }
   }
 
   public class Player
@@ -128,6 +137,8 @@ namespace dice_game.cs
     private int _score = 0;
     private int _playerNumber;
     private static int currentTurn;
+    private string _history;
+    private List<List<int>> _l = new List<List<int>>();
 
 
     public void printScore()
@@ -157,6 +168,7 @@ namespace dice_game.cs
     {
       Turn t = new Turn();
 
+
       if (t.findTurnNumber(_playerNumber) == 1)
       {
         currentTurn++;
@@ -165,13 +177,57 @@ namespace dice_game.cs
       Console.WriteLine("Player {0}: taking turn {1}", _playerNumber, currentTurn);
 
       _score += t.takeTurn();
+      _history = string.Format("{0}\nPlayer {1}, Rolled {2} on turn {3}.", _history, _playerNumber, t.getHistory(), currentTurn);
+      _l.Add(t.getHistoryList());
+
     }
+
+    public void printHistory()
+    {
+      int tn = 1;
+      int throwTotal = 0;
+      int throwAverage = 0;
+      Dictionary<int, int> dieAverage = new Dictionary<int, int>();
+      foreach(var le in _l)
+      {
+        Console.Write(string.Format("Turn {0} Player {1}: ", tn, _playerNumber));
+        foreach(var i in le)
+        {
+          Console.Write(string.Format("{0} ", i));
+          throwTotal = throwTotal + i;
+          throwAverage = throwAverage + i;
+          if (dieAverage.ContainsKey(i))
+          {
+            dieAverage[i]++;
+          }
+          else
+          {
+            dieAverage.Add(i, 1);
+          }
+        }
+        Console.Write("Throw total: {0}", throwTotal);
+        throwTotal = 0;
+        Console.WriteLine("");
+        tn++;
+      }
+      throwAverage = (throwAverage / tn - 1);
+      Console.WriteLine("Throw Average: {0}", throwAverage);
+      foreach (KeyValuePair<int, int> entry in dieAverage)
+      {
+        Console.WriteLine("You rolled {0} {1} times", entry.Key, entry.Value);
+      }
+    }
+
+
     public int getPlayer()
     {
       return _playerNumber;
     }
 
-
+    public string getHistory()
+    {
+      return _history;
+    }
 
     public int getTurn()
     {
@@ -197,10 +253,18 @@ namespace dice_game.cs
   public class Turn
   {
     private int _score = 0;
-    private static int diceFace;
     private Dictionary<int, int> _kind = new Dictionary<int, int>();
-    private string _historyRoll;
-   // private string _history;
+    private string _history;
+    private List<int> _hl;
+
+    public string getHistory()
+    {
+      return _history;
+    }
+    public List<int> getHistoryList()
+    {
+      return _hl;
+    }
 
 
 
@@ -220,59 +284,75 @@ namespace dice_game.cs
 
     public int takeTurn()
     {
+      int dieFace = 0;
       List<int> results;
       Roll r = new Roll();
       results = r.doRoll(4);
       r.printRoll();
-      _historyRoll = string.Join(", ", results);
-     // _history = string.Format("{0}\nPlayer {1}, Rolled {2} on turn {3}.", _history, Player.getPlayer(), _historyRoll, Player.getTurn());
+      _history = string.Join(", " ,results);
+      _hl = results;
       this.findKind(results);
-
-
-
-
-
+      dieFace = this.highestKey();
       int hc = highestCount();
+      this.keepKey(dieFace, hc);
+      this.printDict();
+
+
+
+
+
       if (hc == 2)
       {
-        Console.WriteLine("\nYou found 2 {0}'s, press enter to re-roll 3 dice...", diceFace);
-        Console.ReadLine();
+
+        Console.WriteLine("\nYou found 2 {0}'s, press enter to re-roll 3 dice...", dieFace);
+        //Console.ReadLine();
         results = r.doRoll(2);
         r.printRoll();
         this.findKind(results);
+        dieFace = this.highestKey();
+        this.printDict();
         hc = highestCount();
+        _history = string.Join(", ", results);
+        _history = string.Format("{0}, {1}, {2}",_history, dieFace, dieFace);
+        _hl = results;
+        _hl.Add(dieFace);
+        _hl.Add(dieFace);
+        if (hc == 2)
+        {
+          Console.WriteLine("\nYou found no pairs of 3 and score 0 points this turn.");
+        }
       }
+
 
       if (hc == 3)
       {
-
         _score = 3;
-        this._kind.Clear();
-        Console.WriteLine("\nYou found 3 {0}'s and scored {1} points!", diceFace, _score);
+        Console.WriteLine("\nYou found 3 {0}'s and scored {1} points!", dieFace, _score);
       }
       if (hc == 4)
       {
-
         _score = 6;
-        this._kind.Clear();
-
-        Console.WriteLine("\nYou found 4 {0}'s and scored {1} points!", diceFace, _score);
+        Console.WriteLine("\nYou found 4 {0}'s and scored {1} points!", dieFace, _score);
       }
       if (hc == 5)
       {
         _score = 12;
-        this._kind.Clear();
-
-        Console.WriteLine("\nYou found 5 {0}'s and scored {1} points!", diceFace, _score);
+        Console.WriteLine("\nYou found 5 {0}'s and scored {1} points!", dieFace, _score);
       }
       if (hc == 1)
       {
-
-
-        this._kind.Clear();
         Console.WriteLine("\nYou found no pairs and score 0 points this turn.");
       }
+      this._kind.Clear();
       return _score;
+    }
+
+    public void printDict()
+    {
+      foreach (KeyValuePair<int, int> kvp in _kind)
+      {
+        Console.WriteLine("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
+      }
     }
     //##HISTORY BUILDER##
     public void printHistory()
@@ -295,7 +375,6 @@ namespace dice_game.cs
         {
           _kind.Add(v, 1);
         }
-        diceFace = _kind.Keys.Max();
       }
     }
 
@@ -310,6 +389,29 @@ namespace dice_game.cs
         }
       }
       return h;
+    }
+    private int highestKey()
+    {
+      //Console.WriteLine("Got to here!!");
+      int h = 0;
+      int k = 0;
+      foreach (KeyValuePair<int, int> entry in _kind)
+      {
+        if (h < entry.Value)
+        {
+          h = entry.Value;
+          k = entry.Key;
+         // Console.WriteLine("This is the key {0}", k);
+        }
+      }
+      return k;
+    }
+
+    private void keepKey(int k, int v)
+    {
+      _kind.Clear();
+      _kind.Add(k, v);
+
     }
   }
 
