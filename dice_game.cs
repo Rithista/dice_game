@@ -35,11 +35,19 @@ namespace dice_game.cs
 
       //Some game info text for the user
       Console.WriteLine("--RULES!--");
+
+      //Thread sleep is used to create delay, designed to make it seem as if the program is loading...
+      System.Threading.Thread.Sleep(400);
       Console.WriteLine("* Roll 5 dice and match as many as you can!");
+      System.Threading.Thread.Sleep(100);
       Console.WriteLine("* You score points if you match 3, 4 or 5 Die.");
+      System.Threading.Thread.Sleep(100);
       Console.WriteLine("* If you match 2 Die, you can re-roll the other 3 Die to score again!");
+      System.Threading.Thread.Sleep(100);
       Console.WriteLine("* You can also select to not re-roll before your turn and score double points.");
+      System.Threading.Thread.Sleep(100);
       Console.WriteLine("* First player to 50 points will win the game!");
+      System.Threading.Thread.Sleep(100);
       Console.Write("\n\nEnter P to play against Players, or C to play against the Computer: ");
 
       //goto point to loop back over for validation 
@@ -171,7 +179,6 @@ namespace dice_game.cs
 
             //Runs the printHistory method in class game
             Game.printHistory();
-
             //breaks out of the if(!isGameWon) loop and the game is over
             break;
           }
@@ -183,6 +190,7 @@ namespace dice_game.cs
       //User input to decide if they want to play again
       Console.WriteLine("\nPress enter to play again...");
       Console.ReadLine();
+
       Main();
     }//End of Main
     public static int whoAmI()
@@ -283,11 +291,14 @@ namespace dice_game.cs
 
       //print out which declares which players information this is
       Console.Write("===========Player {0}'s History===========", _playerNumber);
+
+      //Checks to see if if the current player is the winning player as only one player can have 50 points or over because the game stops
       if(_score >= 50)
       {
         Console.WriteLine("(WINNER)====");
       }
       Console.Write("\n");
+
       //foreach loop which iterates over each value in the list _l
       foreach (var le in _l)
       {
@@ -300,75 +311,121 @@ namespace dice_game.cs
           //prints out each of the final die values from the turn class
           Console.Write(string.Format(" {0} ", i));
 
-          //adds value to each of the
+          //adds to throwTotal for each value of i, i will be what ever the current value of the die it is checking is
           throwTotal = throwTotal + i;
+
+          //seperate method than throwTotal because throw total is for each turn and needs to be reset while throwAverage is for the entire player's history
           throwAverage = throwAverage + i;
+
+          //If loop which adds the history dice to a dictionary
           if (dieAverage.ContainsKey(i))
           {
+            //If the dictionary already contains the current key (die value) then + 1 to it
             dieAverage[i]++;
           }
           else
           {
+            //Else add the key to the dictionary and give it a value of 1
             dieAverage.Add(i, 1);
           }
         }
+        //Print outs which format the history of each player
         Console.Write("|");
+
+        //prints out the throwTotal for each turn the player took
         Console.Write("Throw total: {0}", throwTotal);
+
+        //Prints out the score of each turn, (tn - 1) is because game turn starts from 1 <, and the program stores the turn starting from 0
         Console.Write(" |Score: {0}|", _scoreList.ElementAt(tn - 1));
+
+        //Prints out the winning turn for the game
         if(_scoreList.ElementAt(tn-1) >= 50)
         {
           Console.Write("<---- Winning Turn");
         }
+
+        //Sets the throw total back to 0 for each turn, stops the total from increasing past the turn
         throwTotal = 0;
         Console.WriteLine("");
+
+        //increases the turn number by 1, this is important because all the lists are stored on a turn by turn basis and tn will point to each turn as it increases
         tn++;
       }
+
+      //throwAverage calculation, it is the total number of dice thrown/ what ever the last turn number for the player was (-1 because it starts from 0)
       throwAverage = (throwAverage / (tn - 1));
+
+      //Statistics print out
       Console.WriteLine("======Statistics======");
       Console.WriteLine("Throw Average: {0}", throwAverage);
       Console.WriteLine("-----------------------");
+
+      //For each loop which will print out the dictionary values from dieAverage
       foreach (KeyValuePair<int, int> entry in dieAverage)
       {
+        //entry.Key is the die number, and entry.Value is how many times it was entered into the dictionary
         Console.WriteLine("You rolled |{0}| {1} times", entry.Key, entry.Value);
         Console.WriteLine("-----------------------");
       }
     }
 
-
+    //method which checks to see if the player has won yet
     public bool isWinner()
     {
+
+      //if code to check players score, could also be > 49
       if (_score >= 50)
       {
+
+        //winning player print out
         Console.WriteLine("-=-=-=-=-=-=-Player {0} is the WINNER!-=-=-=-=-=-=-\n", _playerNumber);
+
+        //returns value true for the isGameWon boolean
         return true;
       }
       else
       {
+        //if score < 50 then return false
         return false;
       }
     }
-  }
+  }//End of class Player
 
 
-
+  //Start of class Turn, this does all of the turn logic for the player
   public class Turn
   {
+    //int which will store the score for the turn
     private int _score = 0;
+
+    //dictionary which will store the die values, will eventually return which die face was the most common with key value pairs
     private Dictionary<int, int> _kind = new Dictionary<int, int>();
+
+    //history list creation, this will store the results from the dice rolls and allow it to be printed out at the end
     private List<int> _hl;
 
+    //method which returns the history list
     public List<int> getHistoryList()
     {
       return _hl;
     }
 
-
+    //method which does all of the turn logic
     public int takeTurn()
     {
+      //int which will store what the face value of the dice was in the pair
       int dieFace = 0;
+
+      //list which will store all of the rolls for the turn
       List<int> results;
+
+      //new roll object created
       Roll r = new Roll();
+
+      //results list will = the output of the random numbers from r.doRoll in the roll class
       results = r.doRoll(4);
+
+      //Some print to show rolling the die
       Console.Write("ROLLING");
       System.Threading.Thread.Sleep(100);
       Console.Write(".");
@@ -376,23 +433,41 @@ namespace dice_game.cs
       Console.Write(".");
       System.Threading.Thread.Sleep(100);
       Console.Write(".");
+
+      //will format and print the answers from the roll class, could be done in turn class but in the roll class you have access to each individual value instead just 5 numbers
       r.printRoll();
+
+      //more delay creation in the program
       System.Threading.Thread.Sleep(200);
+
+      //historyList now = results list, keeps them seperate as they are used for different functions
       _hl = results;
+
+      //runs the findKind method in the Turn class which will store each of the dice rolls into a dictionary and set its value to how many occured
       this.findKind(results);
+
+      //method in class Turn which sets dieFace to the Key of the highest value in the dictionary of rolls
       dieFace = this.highestKey();
-      int hc = highestCount();
+
+      //integer hc = highestCount which is a method that finds the highest value in the dictionary, this value will be the pair number, so 2 2's will be 2 or 3 2's will be 3
+      int hc = this.highestCount();
+
+      //keepKey is a method which will clear out the dictionary and only add back the pair that has the highest value
+      //this is only useful if the user is re-rolling
       this.keepKey(dieFace, hc);
 
-
-
-
+      //If codes which check to see what type of pair you have found
+      //hc == 2 means you have found 2 die that match
       if (hc == 2)
       {
-
+        //print out which lets the user know what they have found
         Console.WriteLine("\n\nYou found 2 |{0}|'s, press enter to re-roll 3 dice...", dieFace);
         Console.ReadLine();
+
+        //once enter pressed 3 die are rerolled from the r.doRoll method in roll, the new values are stored into the results list again
         results = r.doRoll(2);
+
+        //some print out for the user with delays
         Console.Write("ROLLING");
         System.Threading.Thread.Sleep(100);
         Console.Write(".");
@@ -406,61 +481,99 @@ namespace dice_game.cs
         System.Threading.Thread.Sleep(200);
         Console.Write("| {0}, {1} |", dieFace, dieFace);
         System.Threading.Thread.Sleep(100);
+
+        //findKind adds the results to the dictionary with their keyvaluepairs
         this.findKind(results);
+
+        //dieFace now = which die face appears the most
         dieFace = this.highestKey();
-        hc = highestCount();
+
+        //hc = the new count after the second roll, the pair from the first roll are also added in
+        hc = this.highestCount();
+
+        //history list = the new results
         _hl = results;
+
+        //because this is in the if for re rolling 3 die, the 2 die from the first roll are also added to the history list twice because they were the 2 same die
         _hl.Add(dieFace);
         _hl.Add(dieFace);
+
+        //If the highest count of the die still = 2 then they havent found a new pair of 3
         if (hc == 2)
         {
           Console.WriteLine("\n\nYou found no pairs of 3 and score 0 points this turn.");
         }
       }
 
-
+      //if code runs if the pair count is 3
       if (hc == 3)
       {
+        //sets the score to 3
         _score = 3;
+
+        //print out for the user
         Console.WriteLine("\n\nYou found 3 |{0}|'s and scored {1} points!", dieFace, _score);
       }
+
+      //if code runs if the pair cout is 4
       if (hc == 4)
       {
+        //set score to 6
         _score = 6;
+
+        //print out for the user
         Console.WriteLine("\n\nYou found 4 |{0}|'s and scored {1} points!", dieFace, _score);
       }
+
+      //if code runs if you match all 5 die the same
       if (hc == 5)
       {
+        //sets score to 12
         _score = 12;
+
+        //print out for user
         Console.WriteLine("\n\nYou found 5 |{0}|'s and scored {1} points!", dieFace, _score);
       }
+
+      //if code runs if no value of pair was found to be more than 1
       if (hc == 1)
       {
         Console.WriteLine("\n\nYou found no pairs and score 0 points this turn.");
       }
+
+      //at this point the turn is over and the dictionary is cleared ready for new die
       this._kind.Clear();
+
+      //returns the final score back to the player
       return _score;
     }
 
+    //printDict isn't used in the game but it is useful to see the key and value of all of the dictionary entries
     public void printDict()
     {
+      //foreach keyvaluepair in dictionary print out its key and value
       foreach (KeyValuePair<int, int> kvp in _kind)
       {
         Console.WriteLine("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
       }
     }
 
+    //method find kind adds the roll outcomes to the dictionary _kind
     private void findKind(List<int> r)
     {
-
-
+      //for every value in r, which is how ever many entries there are in the results list
       for (int i = 0; i < r.Count(); i++)
       {
+        //r.ElementAt(i) will cycle through every value in the list
         int v = r.ElementAt(i);
+
+        //if the dictionary contains the key then add 1 to its value
         if (_kind.ContainsKey(v))
         {
           _kind[v]++;
         }
+
+        //if not then add it to the dictionary and set its value to 1
         else
         {
           _kind.Add(v, 1);
@@ -468,89 +581,125 @@ namespace dice_game.cs
       }
     }
 
+    //method highestCount finds out which the pair number is, 3,3,3 would output 3 and 1,1,1,1 would output 4
     private int highestCount()
     {
+      //default pair is 0 (no pairs), could also be 1
       int h = 0;
+
+      //for every entry in the dictionary run this
       foreach (KeyValuePair<int, int> entry in _kind)
       {
+
+        //this if code always sets h to the highest value it comes accross, the values are linked with how many times it has appeard in the roll
         if (h < entry.Value)
         {
           h = entry.Value;
         }
       }
+      //returns the final value of h which is the largest value in the dictionary _kind
       return h;
     }
+
+    //method highestKey find out the die value of the pair it has found
     private int highestKey()
     {
-      //Console.WriteLine("Got to here!!");
+      //declaring ints that will be returned
       int h = 0;
       int k = 0;
+
+      //for every value in the dictionary _kind
       foreach (KeyValuePair<int, int> entry in _kind)
       {
+        //finds the highest value in _kind
         if (h < entry.Value)
         {
+          //h will now = the current value
           h = entry.Value;
+
+          //k will not = the current key
           k = entry.Key;
-          // Console.WriteLine("This is the key {0}", k);
         }
       }
+      //return the highest key in _kind
       return k;
     }
 
+    //method which is used to get rid of the 3 remaining die that are being rerolled from the dictionary
+    //(int k, int v) inputs the highest key and its value from the first roll
     private void keepKey(int k, int v)
     {
+      //clears the dictionary _kind
       _kind.Clear();
+
+      //adds back in the highest key, highest value from first roll
       _kind.Add(k, v);
-
     }
-  }
+  }//end of class Turn
 
+  //Start of class Roll
   public class Roll
   {
+    //Die object declaration
     private Die dice;
+
+    //list which will privately store the results from the die class
     private List<int> _results = new List<int>();
 
+    //constructor which creates new dice when roll is called
     public Roll()
     {
       dice = new Die();
     }
 
+    //method printRoll formats the information recieved from the die class and outputs it so its user readable
     public void printRoll()
     {
+      //string rollOutcome will = all of the results in the results list joined by a ,
       string rollOutcome = string.Join(", ", _results);
+
+      //rollOutcome is formatted so that all the results are displayed within a box
       rollOutcome = string.Format("| {0} |", rollOutcome);
+
+      //Print out final string to user
       Console.Write("{0}", rollOutcome);
     }
 
+    //method which rolls the die depending on how many are needed to be rolled, this means the program can be easily changed to fit different criteria
     public List<int> doRoll(int number)
     {
-
+      //removes entries from the _results list so it can accept new ones
       _results.Clear();
 
+      //for loop which will roll the die depending on how many are needed, this is determined by the input from the user as number
       for (int i = 0; i <= number; i++)
       {
+        //adds the outcome from roll method in the Die class to results, dice is created in the constructor for each roll
         _results.Add(dice.roll());
       }
+
+      //return the _results list
       return _results;
     }
-  }
+  }//End of class Roll
 
+  //Start of class Die
   public class Die
   {
+    //New random number called rnd, this is static so that there is only one instance and different random numbers are generated each time because it is seed based
     private static Random rnd = new Random();
-    private int _value;
-    public Die()
-    {
 
-    }
+    //int _value will return the die face value
+    private int _value;
+    
+    //method roll which will output a random number between 1 and 6
     public int roll()
     {
+      //_value now = the random number between 1-6, rnd.Next(int.m, int.M) is how random numbers are made
       _value = rnd.Next(1, 7);
+
+      //return the die face value
       return _value;
     }
-    public void printDie()
-    {
-      Console.WriteLine("Dice {0}", _value);
-    }
-  }
-}
+  }//End of class Die
+}//End of namespace dice_game
