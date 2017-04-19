@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Input;
 
+//namespace for program
 namespace dice_game.cs
 {
   //Start of the Game class
@@ -11,9 +13,12 @@ namespace dice_game.cs
     //Declaring variables at top of class
     //playerTotal will hold the amount of the players the user wants to play against
     public static int playerTotal;
+    public static int playersNumber;
+    private static bool _isThrowOnce;
+    private static Random _computerThrowOnce = new Random();
 
     //boolean to determine if you are playing against the computer or other players
-    public static bool Opponent = true;
+    private static bool Opponent;
 
     //a list that will store all of the player objects
     private static List<Player> _players = new List<Player>();
@@ -32,6 +37,7 @@ namespace dice_game.cs
     {
       //Prints out the start
       PrintStart();
+      _players.Clear();
 
       //Some game info text for the user
       Console.WriteLine("--RULES!--");
@@ -67,7 +73,8 @@ namespace dice_game.cs
       {
         //If the player selects the Computer, the opponent is set to false because they are playing against the computer
         Opponent = false;
-        Console.WriteLine("\nYou have selected to play against the Computer!");
+        Console.WriteLine("\nYou have selected to play against the Computer, good luck!");
+        System.Threading.Thread.Sleep(2000);
       }
       else
       {
@@ -122,21 +129,25 @@ namespace dice_game.cs
         //Prints start method, also cleans up the console because the player is past the input stage
         PrintStart();
         Console.WriteLine("You are playing against {0} opponents, good luck!", playerTotal);
+        //for loop which creates a player object and adds it into the _players list depending on the int playerTotal
+        for (int i = 1; i <= playerTotal; i++)
+        {
+          //adding players to _players list
+          _players.Add(new Player(i, Opponent));
+        }
+        System.Threading.Thread.Sleep(2000);
       }
       //other part of the If which is for playing against the computer
       else if (Opponent == false)
       {
         //playerTotal has to = 2 because there is only one computer AI
         playerTotal = 2;
+        _players.Add(new Player(1, true));
+        _players.Add(new Player(2, false));
       }
 
-      //for loop which creates a player object and adds it into the _players list depending on the int playerTotal
-      for (int i = 1; i <= playerTotal; i++)
-      {
-        //adding players to _players list
-        _players.Add(new Player(i));
-      }
-      Console.WriteLine("GOT TO HERE");
+      int currentTurn = 1;
+
       //####Game START#####
       //isGameWon is set to false at the start, when it becomes true someone has reached 50+ points and the game is over
       bool isGameWon = false;
@@ -147,6 +158,9 @@ namespace dice_game.cs
         //for loop for each player in int playerTotal
         for (int i = 0; i < playerTotal; i++)
         {
+          playersNumber = (i + 1);
+
+
           //Prints start method
           PrintStart();
 
@@ -154,13 +168,45 @@ namespace dice_game.cs
           Player p = _players.ElementAt(i);
 
           //user input to start turn, if they are computer it will start turn automatically
-          if (Opponent == true)
+          if (p.isHuman())
           {
-            Console.WriteLine("Player {0} Press enter to take turn |current score {1}|", i+1, p.getScore());
-            Console.ReadLine();
+            Console.WriteLine("Player {0} |current score {1}||Current turn {2}|\n", i+1, p.getScore(), currentTurn);
           }
+          else
+          {
+            Console.Write("The Computer is taking their turn |current score {0}|", p.getScore());
+            System.Threading.Thread.Sleep(200);
+            Console.Write(".");
+            System.Threading.Thread.Sleep(200);
+            Console.Write(".");
+            System.Threading.Thread.Sleep(200);
+            Console.Write(".\n\n");
+          }
+
+          if (p.isHuman())
+          {
+            //Option to throw all once
+            _isThrowOnce = false;
+            Console.WriteLine("Throw Once: Y | N");
+            ConsoleKeyInfo throwOnce = Console.ReadKey();
+            if (throwOnce.KeyChar == 'y' || throwOnce.KeyChar == 'Y')
+            {
+              _isThrowOnce = true;
+            }
+          }
+          else
+          {
+            if (_computerThrowOnce.Next(1, 4) == 1)
+            {
+
+              _isThrowOnce = true;
+              Console.WriteLine("The computer is throwing once!");
+            }
+          }
+
+
           //current player takes a turn
-          p.takeTurn();
+          p.takeTurn(_isThrowOnce);
 
           //current player prints their score so far
           p.printScore();
@@ -182,10 +228,19 @@ namespace dice_game.cs
             //breaks out of the if(!isGameWon) loop and the game is over
             break;
           }
-            //user input to confirm turn end
+          //user input to confirm turn end
+          if (Opponent == true || (i + 1) != 2)
+          {
             Console.WriteLine("Press enter to end turn");
             Console.ReadLine();
+          }
+          else if(Opponent == false && ((i + 1) == 2))
+          {
+            Console.WriteLine("Computer ending turn...");
+            System.Threading.Thread.Sleep(4000);
+          }
         }
+        currentTurn++;
       }
       //User input to decide if they want to play again
       Console.WriteLine("\nPress enter to play again...");
@@ -193,11 +248,6 @@ namespace dice_game.cs
 
       Main();
     }//End of Main
-    public static int whoAmI()
-    {
-      return Convert.ToInt32(Opponent);
-    }
-
     //void method which for how ever many players are in the game, output the player number to the player class, will look like this: _players(2).printHistory(), or _players(12).printHistory.
     static void printHistory()
     {
@@ -215,7 +265,8 @@ namespace dice_game.cs
     //Initializing private variables exclusive for this class
     private int _score = 0;
     private int _playerNumber;
-    private static int currentTurn;
+    private bool _isHuman;
+    private string _name;
 
     //list of lists which will store all the history data
     private List<List<int>> _l = new List<List<int>>();
@@ -223,45 +274,45 @@ namespace dice_game.cs
     //list which stores scores for history
     private List<int> _scoreList = new List<int>();
 
+    //class constructor which gets input from Game about which player is currently taking their turn
+    public Player(int number, bool isHuman)
+    {
+      //information passed in from game class sets the _playerNumber (who is the current player)
+
+      _playerNumber = number;
+      _isHuman = isHuman;
+      if (isHuman)
+      {
+        _name = String.Format("Player {0}", _playerNumber);
+      }
+      else
+      {
+        _name = "Computer";
+      }
+    }
+
+
     //method which prints out the players number and score
     public void printScore()
     {
-      Console.WriteLine("\n|Player {0} score is {1}|\n", _playerNumber, _score);
+      Console.WriteLine("\n|{0} score is {1}|\n", _name, _score);
     }
 
-    //class constructor which gets input from Game about which player is currently taking their turn
-    public Player(int number)
-    {
-      //information passed in from game class sets the _playerNumber (who is the current player)
-      _playerNumber = number;
-      int isComputer = 0;
-      if (_playerNumber == 2)
-      {
-        isComputer = 1;
-      }
-      if ((isComputer == 1) && (Game.whoAmI() == 0))
-      {
-        _playerNumber = Convert.ToInt32("Computer");
-      }
 
+    public bool isHuman()
+    {
+      return _isHuman;
     }
 
     //method which takes a turn for the player
-    public void takeTurn()
+    public void takeTurn(bool isThrowOnce)
     {
       //new turn object for the player
       Turn t = new Turn();
 
-      //if statement which increments currentTurn each time the list loops back around to player 1
-      if (_playerNumber == 1)
-      {
-        currentTurn++;
-      }
-      //print out which tells the user which player is taking which turn
-      Console.WriteLine("Player {0}: taking turn {1}\n", _playerNumber, currentTurn);
 
       //adds the score from takeTurn from the turn class to its self, this is the players score
-      _score += t.takeTurn();
+      _score += t.takeTurn(_isHuman, isThrowOnce);
 
       //adds information about the rolls to the _l list of lists
       _l.Add(t.getHistoryList());
@@ -290,15 +341,14 @@ namespace dice_game.cs
       Dictionary<int, int> dieAverage = new Dictionary<int, int>();
 
       //print out which declares which players information this is
-      Console.Write("===========Player {0}'s History===========", _playerNumber);
+      Console.Write("==========={0}'s History===========", _name);
 
       //Checks to see if if the current player is the winning player as only one player can have 50 points or over because the game stops
       if(_score >= 50)
       {
-        Console.WriteLine("(WINNER)====");
+        Console.Write("(WINNER)====");
       }
-      Console.Write("\n");
-
+      Console.WriteLine("");
       //foreach loop which iterates over each value in the list _l
       foreach (var le in _l)
       {
@@ -374,11 +424,11 @@ namespace dice_game.cs
     {
 
       //if code to check players score, could also be > 49
-      if (_score >= 50)
+      if (_score >= 10)
       {
 
         //winning player print out
-        Console.WriteLine("-=-=-=-=-=-=-Player {0} is the WINNER!-=-=-=-=-=-=-\n", _playerNumber);
+        Console.WriteLine("-=-=-=-=-=-=-{0} is the WINNER!-=-=-=-=-=-=-\n", _name);
 
         //returns value true for the isGameWon boolean
         return true;
@@ -411,7 +461,7 @@ namespace dice_game.cs
     }
 
     //method which does all of the turn logic
-    public int takeTurn()
+    public int takeTurn(bool isHuman, bool isThrowOnce)
     {
       //int which will store what the face value of the dice was in the pair
       int dieFace = 0;
@@ -458,11 +508,21 @@ namespace dice_game.cs
 
       //If codes which check to see what type of pair you have found
       //hc == 2 means you have found 2 die that match
-      if (hc == 2)
+      if (hc == 2 && !isThrowOnce)
       {
         //print out which lets the user know what they have found
-        Console.WriteLine("\n\nYou found 2 |{0}|'s, press enter to re-roll 3 dice...", dieFace);
-        Console.ReadLine();
+        if (isHuman)
+        {
+          //Human player
+          Console.WriteLine("\n\nYou found 2 |{0}|'s, press enter to re-roll 3 dice...", dieFace);
+          Console.ReadLine();
+        }
+        else 
+        {
+          //Computer player
+          Console.WriteLine("\n\nThe computer has found 2 |{0}|'s", dieFace);
+          System.Threading.Thread.Sleep(400);
+        }
 
         //once enter pressed 3 die are rerolled from the r.doRoll method in roll, the new values are stored into the results list again
         results = r.doRoll(2);
@@ -504,12 +564,20 @@ namespace dice_game.cs
           Console.WriteLine("\n\nYou found no pairs of 3 and score 0 points this turn.");
         }
       }
+      
 
+      int mult = 1;
+      if (isThrowOnce)
+      {
+        mult = 2;
+      }
+      
       //if code runs if the pair count is 3
       if (hc == 3)
       {
         //sets the score to 3
-        _score = 3;
+        _score = 3 * mult;
+
 
         //print out for the user
         Console.WriteLine("\n\nYou found 3 |{0}|'s and scored {1} points!", dieFace, _score);
@@ -519,7 +587,7 @@ namespace dice_game.cs
       if (hc == 4)
       {
         //set score to 6
-        _score = 6;
+        _score = 6 * mult;
 
         //print out for the user
         Console.WriteLine("\n\nYou found 4 |{0}|'s and scored {1} points!", dieFace, _score);
@@ -529,17 +597,19 @@ namespace dice_game.cs
       if (hc == 5)
       {
         //sets score to 12
-        _score = 12;
+        _score = 12 * mult;
 
         //print out for user
         Console.WriteLine("\n\nYou found 5 |{0}|'s and scored {1} points!", dieFace, _score);
       }
 
       //if code runs if no value of pair was found to be more than 1
-      if (hc == 1)
+      if (hc == 1 || hc == 2)
       {
-        Console.WriteLine("\n\nYou found no pairs and score 0 points this turn.");
+        Console.WriteLine("\n\nYou did not find 3 of a kind and scored no points");
       }
+
+      
 
       //at this point the turn is over and the dictionary is cleared ready for new die
       this._kind.Clear();
