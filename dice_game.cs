@@ -1,35 +1,69 @@
-﻿using System;
+﻿/*
++------------------------------------------------------------+
+| Module Name: Programming and data structures               |
+| Module Purpose: Create dice game                           |
+| Inputs: User                                               |
+| Outputs: Console                                           |
+| Programmer name: Harry Jones                               |
++------------------------------------------------------------+
+ */
+
+//Importing C# syntax
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Windows.Input;
 
-//namespace for program
-namespace dice_game.cs
+
+namespace dice_game.cs //Namespace for whole program
 {
-  //Start of the Game class
-  public class Game
+  
+  public class Game //Class Game begins!
   {
     //Declaring variables at top of class
-    //playerTotal will hold the amount of the players the user wants to play against
+    //because they are used in enclosed loops so
+    //they need to accessed everywhere throughout
+    //the class
     public static int playerTotal;
     public static int playersNumber;
     private static bool _isThrowOnce;
     private static Random _computerThrowOnce = new Random();
-
-    //boolean to determine if you are playing against the computer or other players
     private static bool Opponent;
-
-    //a list that will store all of the player objects
     private static List<Player> _players = new List<Player>();
 
-    //a method which allows for the console screen to be clear and then print the game text at the top
+    //public static method which prints out the start of the game title, it also clears and checks the height of the console window
     public static void PrintStart()
     {
+      Console.BufferHeight = Int16.MaxValue - 1;
+      var w = Console.WindowWidth;
+      var h = Console.WindowHeight;
+      if (w < 200 || h < 75)
+      {
+        Console.SetWindowSize(200, 75);
+      }
       Console.Clear();
-      Console.WriteLine("==========================================================================================");
-      Console.WriteLine("--Harry's Dice Game--");
-      Console.WriteLine("==========================================================================================");
+      Console.WriteLine("======================================");
+      System.Threading.Thread.Sleep(10);
+      Console.WriteLine("               (( _______");
+      System.Threading.Thread.Sleep(10);
+      Console.WriteLine("     _______     /\\O    O\\");
+      System.Threading.Thread.Sleep(10);
+      Console.WriteLine("    /O     /\\   /  \\      \\");
+      System.Threading.Thread.Sleep(10);
+      Console.WriteLine("   /   O  /O \\ / O  \\O____O\\ ))");
+      System.Threading.Thread.Sleep(10);
+      Console.WriteLine("((/_____O/    \\    /O     /");
+      System.Threading.Thread.Sleep(10);
+      Console.WriteLine("  \\O    O\\    / \\  /   O  /");
+      System.Threading.Thread.Sleep(10);
+      Console.WriteLine("   \\O    O\\ O/   \\/_____O/");
+      System.Threading.Thread.Sleep(10);
+      Console.WriteLine("    \\O____O\\/ ))          ))");
+      System.Threading.Thread.Sleep(10);
+      Console.WriteLine("  ((");
+      System.Threading.Thread.Sleep(10);
+      Console.WriteLine("======================================");
     }
 
     //Start of Main inside Game class
@@ -56,8 +90,9 @@ namespace dice_game.cs
       System.Threading.Thread.Sleep(100);
       Console.Write("\n\nEnter P to play against Players, or C to play against the Computer: ");
 
-      bool playerSelect = false;
 
+      //while loop which runs until the players input matches the criteria
+      bool playerSelect = false;
       while (!playerSelect)
       {
         //User input to decide who they are playing against
@@ -86,7 +121,7 @@ namespace dice_game.cs
           //If they enter an invalid letter it will ask again
           //Prints the start method
           PrintStart();
-          Console.Write("Please enter a valid letter: ");
+          Console.Write("Please enter a valid letter, P to play against Players, or C to play against the Computer: ");
         }
       }
 
@@ -146,12 +181,13 @@ namespace dice_game.cs
       //other part of the If which is for playing against the computer
       else if (Opponent == false)
       {
-        //playerTotal has to = 2 because there is only one computer AI
+        //playerTotal has to = 2 because there is only one user and the computer AI
         playerTotal = 2;
         _players.Add(new Player(1, true));
         _players.Add(new Player(2, false));
       }
 
+      //current turn number, increases by 1 at end of while loop
       int currentTurn = 1;
 
       //####Game START#####
@@ -164,8 +200,7 @@ namespace dice_game.cs
         //for loop for each player in int playerTotal
         for (int i = 0; i < playerTotal; i++)
         {
-          playersNumber = (i + 1);
-
+          playersNumber = (i + 1); //number starts at 0, so 0 is player 1
 
           //Prints start method
           PrintStart();
@@ -227,7 +262,8 @@ namespace dice_game.cs
               }
             }
           }
-          else
+          else //Computer option to throw once, random number between 1-3, if number is 1 then throw once
+               //this means there is a 1/3 chance for the computer to throw once
           {
             if (_computerThrowOnce.Next(1, 4) == 1)
             {
@@ -293,12 +329,14 @@ namespace dice_game.cs
         currentTurn++;
       }
       //User input to decide if they want to play again
+      //while loops runs until the user input matches the criteria
+      //if play again is selected then Main() is called
       Console.Write("\n\nType A to play Again, or E to Exit the game: ");
       string againOrExit = Console.ReadLine().ToLower();
       bool exitAgain = false;
       while (!exitAgain)
       {
-        if (againOrExit == "a")
+        if (againOrExit == "a") //play again
         {
           Console.Write("\n\nReloading game in 3 seconds.");
           System.Threading.Thread.Sleep(1000);
@@ -308,7 +346,7 @@ namespace dice_game.cs
           System.Threading.Thread.Sleep(1000);
           Main();
         }
-        else if (againOrExit == "e")
+        else if (againOrExit == "e") //exit
         {
           Console.Write("\n\nExiting the game in 3 seconds.");
           System.Threading.Thread.Sleep(1000);
@@ -318,17 +356,15 @@ namespace dice_game.cs
           System.Threading.Thread.Sleep(1000);
           Environment.Exit(0);
         }
-        else
+        else //try again (wrong input)
         {
           PrintStart();
           Console.Write("\n\nPlease enter a valid letter, A to play Again, or E to Exit the game: ");
           againOrExit = Console.ReadLine().ToLower();
         }
       }
-      
-
-      Main();
     }//End of Main
+
     //void method which for how ever many players are in the game, output the player number to the player class, will look like this: _players(2).printHistory(), or _players(12).printHistory.
     static void printHistory()
     {
@@ -357,8 +393,8 @@ namespace dice_game.cs
     //class constructor which gets input from Game about which player is currently taking their turn
     public Player(int number, bool isHuman)
     {
-      //information passed in from game class sets the _playerNumber (who is the current player)
-
+      //argument passed in from game class sets the _playerNumber (who is the current player)
+      //argument also passed in which determins if the player is human or computer
       _playerNumber = number;
       _isHuman = isHuman;
       if (isHuman)
@@ -378,7 +414,7 @@ namespace dice_game.cs
       Console.WriteLine("\n|{0} score is {1}|\n", _name, _score);
     }
 
-
+    //return the players state (user or computer)
     public bool isHuman()
     {
       return _isHuman;
@@ -638,10 +674,8 @@ namespace dice_game.cs
         //because this is in the if for re rolling 3 die, the 2 die from the first roll are also added to the history list twice because they were the 2 same die
         _hl.Add(dieFace);
         _hl.Add(dieFace);
-
       }
-      
-
+      //if throwOnce has been selected then set the score multiplier to 2
       int mult = 1;
       if (isThrowOnce)
       {
@@ -880,3 +914,4 @@ namespace dice_game.cs
     }
   }//End of class Die
 }//End of namespace dice_game
+//End of C# program
