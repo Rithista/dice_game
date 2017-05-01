@@ -46,45 +46,48 @@ namespace dice_game.cs
       System.Threading.Thread.Sleep(400);
       Console.WriteLine("* Roll 5 dice and match as many as you can!");
       System.Threading.Thread.Sleep(100);
-      Console.WriteLine("* You score points if you match 3, 4 or 5 Die.");
+      Console.WriteLine("* You score points if you match 3, 4 or 5 Dice.");
       System.Threading.Thread.Sleep(100);
-      Console.WriteLine("* If you match 2 Die, you can re-roll the other 3 Die to score again!");
+      Console.WriteLine("* If you match 2 Dice, you can re-roll the other 3 Dice to score again!");
       System.Threading.Thread.Sleep(100);
-      Console.WriteLine("* You can also select to not re-roll before your turn and score double points.");
+      Console.WriteLine("* You can also select to only roll once to score double points.");
       System.Threading.Thread.Sleep(100);
-      Console.WriteLine("* First player to 50 points will win the game!");
+      Console.WriteLine("* First player to reach 50 points or more will win the game!");
       System.Threading.Thread.Sleep(100);
       Console.Write("\n\nEnter P to play against Players, or C to play against the Computer: ");
 
-      //goto point to loop back over for validation 
-      playerInput0:
+      bool playerSelect = false;
 
-      //User input to decide who they are playing against
-      string playerInput = Console.ReadLine();
+      while (!playerSelect)
+      {
+        //User input to decide who they are playing against
+        string playerInput = Console.ReadLine();
 
-      //If code which checks what the user input was, could use .ToLower but this shows the or function of an IF
-      if (playerInput.Contains("p") || playerInput.Contains("P"))
-      {
-        //If the player selects Players, they are playing against an opponent so it becomes true
-        Opponent = true;
-        Console.WriteLine("\nYou have selected to play against other Players!");
-      }
-      else if (playerInput.Contains("c") || playerInput.Contains("C"))
-      {
-        //If the player selects the Computer, the opponent is set to false because they are playing against the computer
-        Opponent = false;
-        Console.WriteLine("\nYou have selected to play against the Computer, good luck!");
-        System.Threading.Thread.Sleep(2000);
-      }
-      else
-      {
-        //If they enter an invalid letter it will ask again
-        //Prints the start method
-        PrintStart();
-        Console.Write("Please enter a valid letter: ");
-
-        //Takes user back to try again, could use a loop with break;
-        goto playerInput0;
+        //If code which checks what the user input was, could use .ToLower but this shows the or function of an IF
+        if (playerInput.Contains("p") || playerInput.Contains("P"))
+        {
+          //If the player selects Players, they are playing against an opponent so it becomes true
+          Opponent = true;
+          playerSelect = true;
+          Console.WriteLine("\nYou have selected to play against other Players!");
+          break;
+        }
+        else if (playerInput.Contains("c") || playerInput.Contains("C"))
+        {
+          //If the player selects the Computer, the opponent is set to false because they are playing against the computer
+          Opponent = false;
+          playerSelect = true;
+          Console.WriteLine("\nYou have selected to play against the Computer, good luck!");
+          System.Threading.Thread.Sleep(2000);
+          break;
+        }
+        else
+        {
+          //If they enter an invalid letter it will ask again
+          //Prints the start method
+          PrintStart();
+          Console.Write("Please enter a valid letter: ");
+        }
       }
 
       //Player creation
@@ -94,36 +97,39 @@ namespace dice_game.cs
       if (Opponent == true)
       {
         Console.Write("\nPlease enter the amount of players you wish to play against: ");
-
-        //the goto loop for the try and catch
-        playerTotal0:
-
-        //Try method to get user input
-        try
+        bool playerInputSelect = false;
+        while (!playerInputSelect)
         {
-          //user input for playerTotal
-          playerTotal = Convert.ToInt32(Console.ReadLine());
 
-          //While loop runs if playerTotal is less than 2 because you can't play against your self, could also be <= 1
-          while (playerTotal < 2)
+          //Try method to get user input
+          try
           {
-            //Prints the start method
-            PrintStart();
-            Console.Write("Please enter a value greater than 1: ");
-
-            //Asks for input again
+            //user input for playerTotal
             playerTotal = Convert.ToInt32(Console.ReadLine());
-          }
-        }
-        //Catch which catches errors which could cause the program to stop, i.e entering a char instead of an int
-        catch
-        {
-          //Prints start method
-          PrintStart();
-          Console.Write("Please enter an Integer: ");
 
-          //loops back to the top to try again, could use while loop
-          goto playerTotal0;
+            //While loop runs if playerTotal is less than 2 because you can't play against your self, could also be <= 1
+            while (playerTotal < 2)
+            {
+              //Prints the start method
+              PrintStart();
+              Console.Write("\nPlease enter a value greater than 1: ");
+
+              //Asks for input again
+              playerTotal = Convert.ToInt32(Console.ReadLine());
+            }
+            if (playerTotal >= 2)
+            {
+              playerInputSelect = true;
+              break;
+            }
+          }
+          //Catch which catches errors which could cause the program to stop, i.e entering a char instead of an int
+          catch
+          {
+            //Prints start method
+            PrintStart();
+            Console.Write("\nPlease enter an Integer: ");
+          }
         }
 
         //Prints start method, also cleans up the console because the player is past the input stage
@@ -174,12 +180,12 @@ namespace dice_game.cs
           }
           else
           {
-            Console.Write("The Computer is taking their turn |current score {0}|", p.getScore());
-            System.Threading.Thread.Sleep(200);
+            Console.Write("Computer |current score {0}||Current turn {1}|.", p.getScore(), currentTurn);
+            System.Threading.Thread.Sleep(500);
             Console.Write(".");
-            System.Threading.Thread.Sleep(200);
+            System.Threading.Thread.Sleep(500);
             Console.Write(".");
-            System.Threading.Thread.Sleep(200);
+            System.Threading.Thread.Sleep(500);
             Console.Write(".\n\n");
           }
 
@@ -187,20 +193,57 @@ namespace dice_game.cs
           {
             //Option to throw all once
             _isThrowOnce = false;
-            Console.WriteLine("Throw Once: Y | N");
+            Console.Write("\nThrow Once: Y | N : ");
+            bool throwSelected = false;
             ConsoleKeyInfo throwOnce = Console.ReadKey();
-            if (throwOnce.KeyChar == 'y' || throwOnce.KeyChar == 'Y')
+            Console.WriteLine("\n");
+            while (!throwSelected)
             {
-              _isThrowOnce = true;
+              if (throwOnce.KeyChar == 'y' || throwOnce.KeyChar == 'Y')
+              {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("You are throwing ");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("#ONCE#\n\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                _isThrowOnce = true;
+                throwSelected = true;
+                break;
+              }
+              else if (throwOnce.KeyChar == 'n' || throwOnce.KeyChar == 'N')
+              {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("You are throwing!\n");
+                Console.ForegroundColor = ConsoleColor.White;
+                _isThrowOnce = false;
+                throwSelected = true;
+                break;
+              }
+              else
+              {
+                Console.Write("\nPlease enter a valid Throw character: ");
+                throwOnce = Console.ReadKey();
+                Console.WriteLine("\n");
+              }
             }
           }
           else
           {
             if (_computerThrowOnce.Next(1, 4) == 1)
             {
-
               _isThrowOnce = true;
-              Console.WriteLine("The computer is throwing once!");
+              Console.ForegroundColor = ConsoleColor.Yellow;
+              Console.Write("Computer throwing ");
+              Console.ForegroundColor = ConsoleColor.Red;
+              Console.Write("#ONCE#\n\n");
+              Console.ForegroundColor = ConsoleColor.White;
+            }
+            else
+            {
+              _isThrowOnce = false;
+              Console.ForegroundColor = ConsoleColor.Yellow;
+              Console.WriteLine("Computer thowing!\n");
+              Console.ForegroundColor = ConsoleColor.White;
             }
           }
 
@@ -236,15 +279,53 @@ namespace dice_game.cs
           }
           else if(Opponent == false && ((i + 1) == 2))
           {
-            Console.WriteLine("Computer ending turn...");
-            System.Threading.Thread.Sleep(4000);
+            Console.Write("Computer ending turn.");
+            System.Threading.Thread.Sleep(1000);
+            Console.Write(".");
+            System.Threading.Thread.Sleep(1000);
+            Console.Write(".");
+            System.Threading.Thread.Sleep(1000);
+            Console.Write(".");
+            System.Threading.Thread.Sleep(1000);
           }
         }
+        //increase current turn 
         currentTurn++;
       }
       //User input to decide if they want to play again
-      Console.WriteLine("\nPress enter to play again...");
-      Console.ReadLine();
+      Console.Write("\n\nType A to play Again, or E to Exit the game: ");
+      string againOrExit = Console.ReadLine().ToLower();
+      bool exitAgain = false;
+      while (!exitAgain)
+      {
+        if (againOrExit == "a")
+        {
+          Console.Write("\n\nReloading game in 3 seconds.");
+          System.Threading.Thread.Sleep(1000);
+          Console.Write(".");
+          System.Threading.Thread.Sleep(1000);
+          Console.Write(".");
+          System.Threading.Thread.Sleep(1000);
+          Main();
+        }
+        else if (againOrExit == "e")
+        {
+          Console.Write("\n\nExiting the game in 3 seconds.");
+          System.Threading.Thread.Sleep(1000);
+          Console.Write(".");
+          System.Threading.Thread.Sleep(1000);
+          Console.Write(".");
+          System.Threading.Thread.Sleep(1000);
+          Environment.Exit(0);
+        }
+        else
+        {
+          PrintStart();
+          Console.Write("\n\nPlease enter a valid letter, A to play Again, or E to Exit the game: ");
+          againOrExit = Console.ReadLine().ToLower();
+        }
+      }
+      
 
       Main();
     }//End of Main
@@ -261,7 +342,6 @@ namespace dice_game.cs
   //Start of class Player
   public class Player
   {
-
     //Initializing private variables exclusive for this class
     private int _score = 0;
     private int _playerNumber;
@@ -348,12 +428,13 @@ namespace dice_game.cs
       {
         Console.Write("(WINNER)====");
       }
-      Console.WriteLine("");
+      Console.WriteLine();
+
       //foreach loop which iterates over each value in the list _l
       foreach (var le in _l)
       {
         //prints out a turn for each bit of information in _l
-        Console.Write(string.Format("Turn {0}: |", tn));
+        Console.Write(string.Format("Turn {0,-3}|", tn));
 
         //foreach loop which loops over every bit of information in the var le, its a nested loop
         foreach (var i in le)
@@ -424,7 +505,7 @@ namespace dice_game.cs
     {
 
       //if code to check players score, could also be > 49
-      if (_score >= 10)
+      if (_score >= 50)
       {
 
         //winning player print out
@@ -477,11 +558,11 @@ namespace dice_game.cs
 
       //Some print to show rolling the die
       Console.Write("ROLLING");
-      System.Threading.Thread.Sleep(100);
+      System.Threading.Thread.Sleep(300);
       Console.Write(".");
-      System.Threading.Thread.Sleep(100);
+      System.Threading.Thread.Sleep(300);
       Console.Write(".");
-      System.Threading.Thread.Sleep(100);
+      System.Threading.Thread.Sleep(300);
       Console.Write(".");
 
       //will format and print the answers from the roll class, could be done in turn class but in the roll class you have access to each individual value instead just 5 numbers
@@ -520,8 +601,8 @@ namespace dice_game.cs
         else 
         {
           //Computer player
-          Console.WriteLine("\n\nThe computer has found 2 |{0}|'s", dieFace);
-          System.Threading.Thread.Sleep(400);
+          Console.WriteLine("\n\nThe computer has found 2 |{0}|'s\n", dieFace);
+          System.Threading.Thread.Sleep(2000);
         }
 
         //once enter pressed 3 die are rerolled from the r.doRoll method in roll, the new values are stored into the results list again
@@ -529,11 +610,11 @@ namespace dice_game.cs
 
         //some print out for the user with delays
         Console.Write("ROLLING");
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(300);
         Console.Write(".");
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(300);
         Console.Write(".");
-        System.Threading.Thread.Sleep(100);
+        System.Threading.Thread.Sleep(300);
         Console.Write(".");
         r.printRoll();
         System.Threading.Thread.Sleep(100);
@@ -558,11 +639,6 @@ namespace dice_game.cs
         _hl.Add(dieFace);
         _hl.Add(dieFace);
 
-        //If the highest count of the die still = 2 then they havent found a new pair of 3
-        if (hc == 2)
-        {
-          Console.WriteLine("\n\nYou found no pairs of 3 and score 0 points this turn.");
-        }
       }
       
 
@@ -578,9 +654,16 @@ namespace dice_game.cs
         //sets the score to 3
         _score = 3 * mult;
 
-
-        //print out for the user
-        Console.WriteLine("\n\nYou found 3 |{0}|'s and scored {1} points!", dieFace, _score);
+        if (isHuman)
+        {
+          //print out for the user
+          Console.WriteLine("\n\nYou found 3 |{0}|'s and scored {1} points!", dieFace, _score);
+        }
+        else
+        {
+          Console.WriteLine("\n\nThe Computer found 3 |{0}|'s and scored {1} points!", dieFace, _score);
+          System.Threading.Thread.Sleep(2000);
+        }
       }
 
       //if code runs if the pair cout is 4
@@ -589,8 +672,16 @@ namespace dice_game.cs
         //set score to 6
         _score = 6 * mult;
 
-        //print out for the user
-        Console.WriteLine("\n\nYou found 4 |{0}|'s and scored {1} points!", dieFace, _score);
+        if (isHuman)
+        {
+          //print out for the user
+          Console.WriteLine("\n\nYou found 4 |{0}|'s and scored {1} points!", dieFace, _score);
+        }
+        else
+        {
+          Console.WriteLine("\n\nThe Computer found 4 |{0}|'s and scored {1} points!", dieFace, _score);
+          System.Threading.Thread.Sleep(2000);
+        }
       }
 
       //if code runs if you match all 5 die the same
@@ -600,13 +691,29 @@ namespace dice_game.cs
         _score = 12 * mult;
 
         //print out for user
-        Console.WriteLine("\n\nYou found 5 |{0}|'s and scored {1} points!", dieFace, _score);
+        if (isHuman)
+        {
+          Console.WriteLine("\n\nYou found 5 |{0}|'s and scored {1} points!", dieFace, _score);
+        }
+        else
+        {
+          Console.WriteLine("\n\nThe Computer found 5 |{0}|'s and scored {1} points!", dieFace, _score);
+          System.Threading.Thread.Sleep(2000);
+        }
       }
 
       //if code runs if no value of pair was found to be more than 1
       if (hc == 1 || hc == 2)
       {
-        Console.WriteLine("\n\nYou did not find 3 of a kind and scored no points");
+        if (isHuman)
+        {
+          Console.WriteLine("\n\nYou did not find 3 of a kind and scored no points");
+        }
+        else
+        {
+          Console.WriteLine("\n\nThe Computer did not find 3 of a kind and scored no points");
+          System.Threading.Thread.Sleep(2000);
+        }
       }
 
       
