@@ -18,7 +18,7 @@ using System.Windows.Input;
 
 namespace dice_game.cs //Namespace for whole program
 {
-  
+
   public class Game //Class Game begins!
   {
     //Declaring variables at top of class
@@ -43,7 +43,7 @@ namespace dice_game.cs //Namespace for whole program
         Console.SetWindowSize(200, 75);
       }
       Console.Clear();
-      Console.WriteLine("======================================");
+      Console.WriteLine("==========Harry's Dice Game===========");
       System.Threading.Thread.Sleep(10);
       Console.WriteLine("               (( _______");
       System.Threading.Thread.Sleep(10);
@@ -169,7 +169,7 @@ namespace dice_game.cs //Namespace for whole program
 
         //Prints start method, also cleans up the console because the player is past the input stage
         PrintStart();
-        Console.WriteLine("You are playing against {0} opponents, good luck!", playerTotal);
+        Console.WriteLine("{0} Players are playing, good luck!", playerTotal);
         //for loop which creates a player object and adds it into the _players list depending on the int playerTotal
         for (int i = 1; i <= playerTotal; i++)
         {
@@ -211,7 +211,7 @@ namespace dice_game.cs //Namespace for whole program
           //user input to start turn, if they are computer it will start turn automatically
           if (p.isHuman())
           {
-            Console.WriteLine("Player {0} |current score {1}||Current turn {2}|\n", i+1, p.getScore(), currentTurn);
+            Console.WriteLine("Player {0} |current score {1}||Current turn {2}|\n", i + 1, p.getScore(), currentTurn);
           }
           else
           {
@@ -308,12 +308,16 @@ namespace dice_game.cs //Namespace for whole program
             break;
           }
           //user input to confirm turn end
+          //checks to see if its a player or computer turn
+          //if computer turn then it will automatically end the turn
+          //if code using check from users input, as well as current player number
+          //this means a computer turn can only exist if, Opponent == false and the player number is 2
           if (Opponent == true || (i + 1) != 2)
           {
             Console.WriteLine("Press enter to end turn");
             Console.ReadLine();
           }
-          else if(Opponent == false && ((i + 1) == 2))
+          else if (Opponent == false && ((i + 1) == 2))
           {
             Console.Write("Computer ending turn.");
             System.Threading.Thread.Sleep(1000);
@@ -460,7 +464,7 @@ namespace dice_game.cs //Namespace for whole program
       Console.Write("==========={0}'s History===========", _name);
 
       //Checks to see if if the current player is the winning player as only one player can have 50 points or over because the game stops
-      if(_score >= 50)
+      if (_score >= 50)
       {
         Console.Write("(WINNER)====");
       }
@@ -506,7 +510,7 @@ namespace dice_game.cs //Namespace for whole program
         Console.Write(" |Score: {0}|", _scoreList.ElementAt(tn - 1));
 
         //Prints out the winning turn for the game
-        if(_scoreList.ElementAt(tn-1) >= 50)
+        if (_scoreList.ElementAt(tn - 1) >= 50)
         {
           Console.Write("<---- Winning Turn");
         }
@@ -634,7 +638,7 @@ namespace dice_game.cs //Namespace for whole program
           Console.WriteLine("\n\nYou found 2 |{0}|'s, press enter to re-roll 3 dice...", dieFace);
           Console.ReadLine();
         }
-        else 
+        else
         {
           //Computer player
           Console.WriteLine("\n\nThe computer has found 2 |{0}|'s\n", dieFace);
@@ -674,6 +678,7 @@ namespace dice_game.cs //Namespace for whole program
         //because this is in the if for re rolling 3 die, the 2 die from the first roll are also added to the history list twice because they were the 2 same die
         _hl.Add(dieFace);
         _hl.Add(dieFace);
+
       }
       //if throwOnce has been selected then set the score multiplier to 2
       int mult = 1;
@@ -681,7 +686,7 @@ namespace dice_game.cs //Namespace for whole program
       {
         mult = 2;
       }
-      
+
       //if code runs if the pair count is 3
       if (hc == 3)
       {
@@ -737,7 +742,7 @@ namespace dice_game.cs //Namespace for whole program
       }
 
       //if code runs if no value of pair was found to be more than 1
-      if (hc == 1 || hc == 2)
+      if (hc == 2)
       {
         if (isHuman)
         {
@@ -750,7 +755,21 @@ namespace dice_game.cs //Namespace for whole program
         }
       }
 
-      
+      //if code runs if no value of pair was found to be more than 1
+      if (hc == 1)
+      {
+        if (isHuman)
+        {
+          Console.WriteLine("\n\nYou did not find any pairs of dice and scored no points");
+        }
+        else
+        {
+          Console.WriteLine("\n\nThe Computer did not find any pairs of dice and scored no points");
+          System.Threading.Thread.Sleep(2000);
+        }
+      }
+
+
 
       //at this point the turn is over and the dictionary is cleared ready for new die
       this._kind.Clear();
@@ -902,7 +921,7 @@ namespace dice_game.cs //Namespace for whole program
 
     //int _value will return the die face value
     private int _value;
-    
+
     //method roll which will output a random number between 1 and 6
     public int roll()
     {
